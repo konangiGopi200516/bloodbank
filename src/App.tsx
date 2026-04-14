@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import Home from "./pages/Home";
 import Login from "./pages/Auth/Login";
@@ -17,31 +17,71 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/otp-login",
+    element: <OTPLogin />,
+  },
+  {
+    path: "/signup",
+    element: <SignUp />,
+  },
+  {
+    path: "/dashboard",
+    element: <UserDashboard />,
+  },
+  {
+    path: "/admin",
+    element: <AdminDashboard />,
+  },
+  {
+    path: "/search",
+    element: <BloodSearch />,
+  },
+  {
+    path: "/hospitals",
+    element: <BloodSearch />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
+  },
+  {
+    path: "/feedback",
+    element: <Feedback />,
+  },
+  {
+    path: "/find-blood",
+    element: <BloodSearch />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+]);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/otp-login" element={<OTPLogin />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/dashboard" element={<UserDashboard />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/search" element={<BloodSearch />} />
-          <Route path="/hospitals" element={<BloodSearch />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/feedback" element={<Feedback />} />
-          <Route path="/find-blood" element={<BloodSearch />} />
-          <Route path="/about" element={<Home />} />
-          <Route path="/contact" element={<Home />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <RouterProvider
+          router={router}
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        />
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>

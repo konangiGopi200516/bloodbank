@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,12 +9,12 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Heart, 
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Heart,
   Bell,
   Shield,
   Camera,
@@ -22,24 +22,27 @@ import {
   Edit
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { userService } from "@/services/userService";
 import Navbar from "@/components/Layout/Navbar";
 import Footer from "@/components/Layout/Footer";
 
 const Profile = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@email.com",
-    phone: "+1 (555) 123-4567",
-    bloodType: "O+",
-    age: "28",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    bloodType: "",
+    age: "",
     weight: "70",
     height: "175",
     address: "123 Main Street",
-    city: "New York",
-    state: "NY",
+    city: "",
+    state: "",
     zipCode: "10001",
     emergencyContact: {
       name: "Jane Doe",
@@ -59,6 +62,42 @@ const Profile = () => {
       newsletterSubscription: false
     }
   });
+
+  useEffect(() => {
+    if (user) {
+      const fetchProfileData = async () => {
+        try {
+          const profile = await userService.getProfile();
+          setProfileData(prev => ({
+            ...prev,
+            firstName: profile.firstName || "",
+            lastName: profile.lastName || "",
+            email: profile.email || "",
+            phone: profile.phone || "",
+            bloodType: profile.bloodType || "O+",
+            age: profile.age ? profile.age.toString() : "",
+            city: profile.city || "",
+            state: profile.state || ""
+          }));
+        } catch (err) {
+          console.error("Error fetching full profile:", err);
+          // Fallback to basic auth context info if fetch fails
+          const nameParts = user.name ? user.name.split(" ") : [];
+          setProfileData(prev => ({
+            ...prev,
+            firstName: nameParts[0] || "",
+            lastName: nameParts.slice(1).join(" ") || "",
+            email: user.email || "",
+            phone: user.phone || "",
+            bloodType: user.bloodType || "O+"
+          }));
+        }
+      };
+
+      fetchProfileData();
+    }
+  }, [user]);
+
 
   const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -115,7 +154,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <div className="container px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -125,7 +164,7 @@ const Profile = () => {
               Manage your personal information and donation preferences
             </p>
           </div>
-          <Button 
+          <Button
             onClick={() => isEditing ? handleSave() : setIsEditing(true)}
             className={isEditing ? "btn-hero" : ""}
           >
@@ -224,7 +263,7 @@ const Profile = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="bloodType">Blood Type</Label>
-                    <Select 
+                    <Select
                       value={profileData.bloodType}
                       onValueChange={(value) => handleInputChange("bloodType", value)}
                       disabled={!isEditing}

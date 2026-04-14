@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/comp
 import { Heart, Mail, Phone, ArrowLeft, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { authService, OTPRequest, OTPVerifyRequest } from "@/services/authService";
 import Navbar from "@/components/Layout/Navbar";
 
 const OTPLogin = () => {
@@ -21,21 +22,59 @@ const OTPLogin = () => {
   const { toast } = useToast();
   const { login } = useAuth();
 
+  // Clear OTP state when component mounts or step changes
+  useEffect(() => {
+    if (step === "input") {
+      setOtp("");
+    }
+  }, [step]);
+
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactInfo.trim()) return;
 
     setIsLoading(true);
+    // Clear any previous OTP
+    setOtp("");
     
-    // Simulate API call to send OTP
-    setTimeout(() => {
+    try {
+      const otpRequest: OTPRequest = {
+        contact: contactInfo,
+        type: loginMethod
+      };
+      
+      const response = await authService.sendOTP(otpRequest);
+      
       toast({
         title: "OTP Sent!",
-        description: `Verification code sent to your ${loginMethod === "email" ? "email" : "phone number"}`,
+        description: response.message,
       });
+      
+      // Show OTP in development mode if available
+      if (response.otp) {
+        toast({
+          title: "Development Mode - OTP Generated",
+          description: `Your OTP is: ${response.otp}`,
+        });
+      } else {
+        toast({
+          title: "Development Mode",
+          description: `Check backend console for OTP (Twilio not configured)`,
+        });
+      }
+      
       setStep("otp");
+      // Ensure OTP input is completely empty
+      setOtp("");
+    } catch (error: any) {
+      toast({
+        title: "Failed to Send OTP",
+        description: error.message || "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleVerifyOTP = async () => {
@@ -43,40 +82,88 @@ const OTPLogin = () => {
 
     setIsLoading(true);
 
-    // Simulate OTP verification
-    setTimeout(() => {
-      // Mock user data - in real app, this would come from API
+    try {
+      const verifyRequest: OTPVerifyRequest = {
+        contact: contactInfo,
+        type: loginMethod,
+        otp: otp
+      };
+      
+      const response = await authService.verifyOTP(verifyRequest);
+      
+      // Update user context with real data
       const userData = {
-        id: "1",
-        name: "John Doe",
-        email: loginMethod === "email" ? contactInfo : "john.doe@example.com",
-        phone: loginMethod === "mobile" ? contactInfo : "+1-555-0123",
-        bloodType: "O+",
+        id: response.token.id.toString(),
+        name: `${response.token.firstName} ${response.token.lastName}`,
+        email: response.token.email,
+        phone: response.token.phone,
+        bloodType: response.token.bloodType,
         avatar: ""
       };
-
+      
       login(userData);
       
       toast({
         title: "Login Successful!",
-        description: "Welcome back to BloodConnect",
+        description: response.message,
       });
 
       setStep("success");
-      setIsLoading(false);
       
       // Redirect to dashboard after short delay
       setTimeout(() => {
         navigate("/dashboard");
       }, 1500);
-    }, 2000);
+    } catch (error: any) {
+      toast({
+        title: "OTP Verification Failed",
+        description: error.message || "Invalid or expired OTP. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleResendOTP = () => {
-    toast({
-      title: "OTP Resent!",
-      description: `New verification code sent to your ${loginMethod === "email" ? "email" : "phone number"}`,
-    });
+  const handleResendOTP = async () => {
+    setIsLoading(true);
+    // Clear previous OTP
+    setOtp("");
+    
+    try {
+      const otpRequest: OTPRequest = {
+        contact: contactInfo,
+        type: loginMethod
+      };
+      
+      const response = await authService.sendOTP(otpRequest);
+      
+      toast({
+        title: "OTP Resent!",
+        description: response.message,
+      });
+      
+      // Show OTP in development mode if available
+      if (response.otp) {
+        toast({
+          title: "Development Mode - OTP Generated",
+          description: `Your OTP is: ${response.otp}`,
+        });
+      } else {
+        toast({
+          title: "Development Mode",
+          description: `Check backend console for OTP (Twilio not configured)`,
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Failed to Resend OTP",
+        description: error.message || "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const validateInput = () => {
@@ -182,7 +269,7 @@ const OTPLogin = () => {
                   <div className="flex justify-center">
                     <InputOTP
                       maxLength={6}
-                      value={otp}
+                      value={otp || ""}
                       onChange={(value) => setOtp(value)}
                       onComplete={() => handleVerifyOTP()}
                     >
@@ -190,9 +277,6 @@ const OTPLogin = () => {
                         <InputOTPSlot index={0} />
                         <InputOTPSlot index={1} />
                         <InputOTPSlot index={2} />
-                      </InputOTPGroup>
-                      <InputOTPSeparator />
-                      <InputOTPGroup>
                         <InputOTPSlot index={3} />
                         <InputOTPSlot index={4} />
                         <InputOTPSlot index={5} />

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Users, 
-  Hospital, 
+  Building, 
   Droplets, 
   AlertTriangle,
   TrendingUp,
@@ -32,28 +32,105 @@ const AdminDashboard = () => {
       value: "12,847",
       change: "+5.2%",
       icon: Users,
-      color: "text-primary"
+      color: "text-primary",
+      detail: "Active donors in system"
     },
     {
       title: "Partner Hospitals",
       value: "156",
       change: "+2.1%",
-      icon: Hospital,
-      color: "text-success"
+      icon: Building,
+      color: "text-success",
+      detail: "Registered hospitals"
     },
     {
       title: "Blood Units Available",
       value: "2,341",
       change: "-1.5%",
       icon: Droplets,
-      color: "text-warning"
+      color: "text-warning",
+      detail: "Total units across all blood banks"
     },
     {
       title: "Critical Requests",
       value: "23",
       change: "+12.3%",
       icon: AlertTriangle,
-      color: "text-destructive"
+      color: "text-destructive",
+      detail: "Urgent blood requests"
+    }
+  ];
+
+  const analyticsData = [
+    {
+      title: "Monthly Donations",
+      current: 3247,
+      previous: 2891,
+      trend: "up",
+      percentage: "+12.3%"
+    },
+    {
+      title: "Blood Requests",
+      current: 1567,
+      previous: 1432,
+      trend: "up",
+      percentage: "+9.4%"
+    },
+    {
+      title: "Successful Matches",
+      current: 1234,
+      previous: 1156,
+      trend: "up",
+      percentage: "+6.8%"
+    },
+    {
+      title: "Emergency Response Time",
+      current: "2.3 hrs",
+      previous: "3.1 hrs",
+      trend: "down",
+      percentage: "-25.8%"
+    }
+  ];
+
+  const bloodTypeDistribution = [
+    { type: "O+", count: 3847, percentage: 37.2, demand: "High" },
+    { type: "A+", count: 2654, percentage: 25.7, demand: "High" },
+    { type: "B+", count: 1876, percentage: 18.2, demand: "Medium" },
+    { type: "AB+", count: 743, percentage: 7.2, demand: "Low" },
+    { type: "O-", count: 521, percentage: 5.0, demand: "Critical" },
+    { type: "A-", count: 398, percentage: 3.9, demand: "Medium" },
+    { type: "B-", count: 234, percentage: 2.3, demand: "Low" },
+    { type: "AB-", count: 74, percentage: 0.7, demand: "Critical" }
+  ];
+
+  const regionalStats = [
+    {
+      region: "North District",
+      donors: 3421,
+      hospitals: 45,
+      bloodUnits: 892,
+      requests: 234
+    },
+    {
+      region: "South District", 
+      donors: 2876,
+      hospitals: 38,
+      bloodUnits: 756,
+      requests: 198
+    },
+    {
+      region: "East District",
+      donors: 3124,
+      hospitals: 42,
+      bloodUnits: 823,
+      requests: 267
+    },
+    {
+      region: "West District",
+      donors: 3426,
+      hospitals: 31,
+      bloodUnits: 870,
+      requests: 189
     }
   ];
 
@@ -200,12 +277,13 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground mb-1">
                     <span className={stat.change.startsWith('+') ? 'text-success' : 'text-destructive'}>
                       {stat.change}
                     </span>
                     {" "}from last month
                   </p>
+                  <p className="text-xs text-muted-foreground">{stat.detail}</p>
                 </CardContent>
               </Card>
             );
@@ -213,11 +291,12 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="inventory" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-5">
             <TabsTrigger value="inventory">Blood Inventory</TabsTrigger>
             <TabsTrigger value="donors">Donors</TabsTrigger>
             <TabsTrigger value="hospitals">Hospitals</TabsTrigger>
             <TabsTrigger value="emergency">Emergency Requests</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           {/* Blood Inventory Tab */}
@@ -336,7 +415,7 @@ const AdminDashboard = () => {
             <Card className="medical-card">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Hospital className="h-5 w-5 text-primary" />
+                  <Building className="h-5 w-5 text-primary" />
                   <span>Partner Hospitals</span>
                 </CardTitle>
                 <CardDescription>
@@ -459,6 +538,200 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="medical-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Building className="h-5 w-5 text-primary" />
+                    <span>Performance Analytics</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Monthly trends and performance metrics
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {analyticsData.map((metric, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <p className="font-medium">{metric.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Current: {metric.current} | Previous: {metric.previous}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <Badge 
+                            variant={metric.trend === 'up' ? 'default' : 'secondary'}
+                          >
+                            {metric.percentage}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="medical-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Droplets className="h-5 w-5 text-primary" />
+                    <span>Blood Type Distribution</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Donor distribution by blood type and demand levels
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {bloodTypeDistribution.map((type, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 border rounded">
+                        <div className="flex items-center space-x-3">
+                          <Badge variant="outline">{type.type}</Badge>
+                          <span className="text-sm">{type.count} donors</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-muted-foreground">{type.percentage}%</span>
+                          <Badge 
+                            variant={type.demand === 'Critical' ? 'destructive' : 
+                                     type.demand === 'High' ? 'default' : 'outline'}
+                          >
+                            {type.demand}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="medical-card">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  <span>Regional Statistics</span>
+                </CardTitle>
+                <CardDescription>
+                  Performance metrics by geographical region
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-2">Region</th>
+                        <th className="text-left p-2">Donors</th>
+                        <th className="text-left p-2">Hospitals</th>
+                        <th className="text-left p-2">Blood Units</th>
+                        <th className="text-left p-2">Requests</th>
+                        <th className="text-left p-2">Efficiency</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {regionalStats.map((region, index) => {
+                        const efficiency = ((region.bloodUnits / region.requests) * 100).toFixed(1);
+                        return (
+                          <tr key={index} className="border-b">
+                            <td className="p-2 font-medium">{region.region}</td>
+                            <td className="p-2">{region.donors.toLocaleString()}</td>
+                            <td className="p-2">{region.hospitals}</td>
+                            <td className="p-2">{region.bloodUnits}</td>
+                            <td className="p-2">{region.requests}</td>
+                            <td className="p-2">
+                              <Badge variant={parseFloat(efficiency) > 80 ? 'default' : 'outline'}>
+                                {efficiency}%
+                              </Badge>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="medical-card">
+                <CardHeader>
+                  <CardTitle className="text-lg">System Health</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span>Database Status</span>
+                      <Badge variant="default">Healthy</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>API Response Time</span>
+                      <Badge variant="default">120ms</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Server Uptime</span>
+                      <Badge variant="default">99.9%</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Active Sessions</span>
+                      <Badge variant="secondary">1,247</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="medical-card">
+                <CardHeader>
+                  <CardTitle className="text-lg">Recent Activity</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>New donors registered</span>
+                      <span className="text-success">+47</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Blood donations completed</span>
+                      <span className="text-success">+123</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Emergency requests resolved</span>
+                      <span className="text-success">+89</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>New hospitals onboarded</span>
+                      <span className="text-success">+5</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="medical-card">
+                <CardHeader>
+                  <CardTitle className="text-lg">Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <Button className="w-full" variant="outline">
+                      Generate Monthly Report
+                    </Button>
+                    <Button className="w-full" variant="outline">
+                      Export Donor Data
+                    </Button>
+                    <Button className="w-full" variant="outline">
+                      System Backup
+                    </Button>
+                    <Button className="w-full" variant="destructive">
+                      Emergency Alert
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Search, 
   MapPin, 
@@ -18,8 +20,19 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Layout/Navbar";
 import Footer from "@/components/Layout/Footer";
+import { useAuth } from "@/contexts/AuthContext";
 
 const BloodSearch = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
   const [searchForm, setSearchForm] = useState({
     bloodType: "",
     location: "",
@@ -121,8 +134,77 @@ const BloodSearch = () => {
   };
 
   const handleSearch = () => {
-    // Filter results based on search criteria
-    console.log("Searching with:", searchForm);
+    if (!searchForm.bloodType && !searchForm.location) {
+      toast({
+        title: "Search Criteria Required",
+        description: "Please select at least a blood type or enter a location to search.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    toast({
+      title: "Search Completed",
+      description: `Found ${bloodBanks.length} blood banks and ${hospitals.length} hospitals matching your criteria.`,
+    });
+  };
+
+  const handleUseLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          toast({
+            title: "Location Detected",
+            description: "Using your current location for search.",
+          });
+          setSearchForm(prev => ({ ...prev, location: "Current Location" }));
+        },
+        (error) => {
+          toast({
+            title: "Location Access Denied",
+            description: "Please enable location access or enter your location manually.",
+            variant: "destructive"
+          });
+        }
+      );
+    } else {
+      toast({
+        title: "Location Not Supported",
+        description: "Your browser does not support location services.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleCallBloodBank = (phone: string, name: string) => {
+    toast({
+      title: "Calling Blood Bank",
+      description: `Connecting to ${name} at ${phone}`,
+    });
+    window.open(`tel:${phone}`, '_self');
+  };
+
+  const handleGetDirections = (address: string) => {
+    const encodedAddress = encodeURIComponent(address);
+    window.open(`https://maps.google.com/?q=${encodedAddress}`, '_blank');
+    toast({
+      title: "Opening Maps",
+      description: "Getting directions to the blood bank.",
+    });
+  };
+
+  const handleEmergencyDonation = (hospitalName: string) => {
+    toast({
+      title: "Emergency Donation",
+      description: `Contacting ${hospitalName} for emergency donation.`,
+    });
+  };
+
+  const handleEmergencyRequest = () => {
+    toast({
+      title: "Emergency Request Submitted",
+      description: "Your emergency request has been received. We will contact you immediately when a match is found.",
+    });
   };
 
   const getAvailabilityColor = (count: number) => {
@@ -228,7 +310,7 @@ const BloodSearch = () => {
                 <Search className="h-4 w-4 mr-2" />
                 Search Blood Banks
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleUseLocation}>
                 <Navigation className="h-4 w-4 mr-2" />
                 Use My Location
               </Button>
@@ -303,11 +385,11 @@ const BloodSearch = () => {
                   <Separator />
 
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <Button className="flex-1">
+                    <Button onClick={() => handleCallBloodBank(bank.phone, bank.name)} className="flex-1">
                       <Phone className="h-4 w-4 mr-2" />
                       Call Now
                     </Button>
-                    <Button variant="outline" className="flex-1">
+                    <Button variant="outline" onClick={() => handleGetDirections(bank.address)} className="flex-1">
                       <MapPin className="h-4 w-4 mr-2" />
                       Get Directions
                     </Button>
@@ -371,11 +453,11 @@ const BloodSearch = () => {
                   <Separator />
 
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <Button className="flex-1">
+                    <Button onClick={() => handleCallBloodBank(hospital.phone, hospital.name)} className="flex-1">
                       <Phone className="h-4 w-4 mr-2" />
                       Contact Hospital
                     </Button>
-                    <Button variant="outline" className="flex-1">
+                    <Button variant="outline" onClick={() => handleEmergencyDonation(hospital.name)} className="flex-1">
                       <Heart className="h-4 w-4 mr-2" />
                       Emergency Donation
                     </Button>
@@ -393,7 +475,7 @@ const BloodSearch = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className="w-full" variant="destructive">
+                <Button onClick={handleEmergencyRequest} className="w-full" variant="destructive">
                   Submit Emergency Request
                 </Button>
               </CardContent>

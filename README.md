@@ -1,78 +1,92 @@
-# Welcome to your Lovable project
+# Blood Bank Management System
 
-## Project info
+A comprehensive blood bank management system built with React, TypeScript, and Tailwind CSS that connects blood donors with hospitals and blood banks to save lives through efficient resource management and emergency response.
 
-**URL**: https://lovable.dev/projects/d5ae797e-7d8d-4069-bf36-907c893f7a78
+## Features
 
-## How can I edit this code?
+- **Donor Management**: Register and manage blood donors with comprehensive profiles
+- **Blood Search**: Find available blood by type and location
+- **Hospital Integration**: Connect with hospitals and blood banks
+- **Emergency Requests**: 24/7 emergency blood request system
+- **User Dashboard**: Personalized dashboard for donors and administrators
+- **Authentication**: Secure login and registration system
+- **Responsive Design**: Mobile-friendly interface
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend**: React 18, TypeScript, Vite
+- **UI Components**: shadcn/ui, Radix UI
+- **Styling**: Tailwind CSS
+- **State Management**: React Context, React Query
+- **Forms**: React Hook Form with Zod validation
+- **Routing**: React Router DOM
+- **Icons**: Lucide React
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d5ae797e-7d8d-4069-bf36-907c893f7a78) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js (v18 or higher)
+- npm or yarn
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. Clone the repository
+```bash
+git clone <your-repository-url>
+cd bloodbank-management
+```
 
-Follow these steps:
+2. Install dependencies
+```bash
+npm install
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+3. Start the development server
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+4. Open your browser and navigate to `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Available Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run build:dev` - Build for development
+- `npm run lint` - Run ESLint
+- `npm run preview` - Preview production build
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Project Structure
 
-## What technologies are used for this project?
+```
+src/
+├── components/          # Reusable UI components
+│   ├── Layout/         # Layout components (Navbar, Footer)
+│   └── ui/             # shadcn/ui components
+├── contexts/           # React contexts
+├── hooks/              # Custom hooks
+├── lib/                # Utility functions
+├── pages/              # Page components
+│   ├── Auth/           # Authentication pages
+│   ├── Admin/          # Admin pages
+│   └── Dashboard/      # Dashboard pages
+├── services/           # API services
+└── types/              # TypeScript type definitions
+```
 
-This project is built with:
+## Contributing
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## How can I deploy this project?
+## License
 
-Simply open [Lovable](https://lovable.dev/projects/d5ae797e-7d8d-4069-bf36-907c893f7a78) and click on Share -> Publish.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Can I connect a custom domain to my Lovable project?
+## Contact
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
-"# blood-frontend" 
-"# blood-frontend" 
-"# blood-frontend" 
-"# blood-frontend" 
-"# blood-frontend" 
+For support and inquiries, please contact the development team.

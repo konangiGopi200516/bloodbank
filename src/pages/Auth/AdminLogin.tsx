@@ -4,22 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, Eye, EyeOff } from "lucide-react";
+import { Heart, Eye, EyeOff, Shield, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { authService } from "@/services/authService";
 import Navbar from "@/components/Layout/Navbar";
+import Footer from "@/components/Layout/Footer";
 
-const Login = () => {
+const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,44 +28,49 @@ const Login = () => {
     }));
   };
 
-  const isFormValid = formData.email.trim() !== '' && formData.password.trim() !== '';
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const response = await authService.login({
-        email: formData.email,
-        password: formData.password
-      });
+      // Admin credentials - in production, these should be from environment variables or database
+      const ADMIN_USERNAME = "admin";
+      const ADMIN_PASSWORD = "admin123";
 
-      // Create user data in the format expected by AuthContext
-      const userData = {
-        id: response.id.toString(),
-        name: `${response.firstName} ${response.lastName}`,
-        email: response.email,
-        phone: response.phone,
-        bloodType: response.bloodType,
-        avatar: ""
-      };
+      if (formData.username === ADMIN_USERNAME && formData.password === ADMIN_PASSWORD) {
+        // Create admin user data
+        const adminData = {
+          id: "admin_001",
+          name: "System Administrator",
+          email: "admin@bloodconnect.com",
+          phone: "+1234567890",
+          bloodType: "O+",
+          avatar: "",
+          role: "ADMIN"
+        };
 
-      login(userData);
-      
-      toast({
-        title: "Login Successful",
-        description: "Welcome back! You have been successfully logged in.",
-      });
-      
-      navigate("/dashboard");
+        // Store admin session
+        localStorage.setItem('bloodconnect_admin_token', 'admin_token_' + Date.now());
+        localStorage.setItem('bloodconnect_admin_user', JSON.stringify(adminData));
+
+        toast({
+          title: "Admin Login Successful",
+          description: "Welcome to BloodConnect Admin Dashboard",
+        });
+
+        navigate("/admin/dashboard");
+      } else {
+        toast({
+          title: "Login Failed",
+          description: "Invalid admin credentials. Please try again.",
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
-      console.error("Login error:", error);
-      
-      const errorMessage = error.response?.data?.message || "Login failed. Please try again.";
-      
+      console.error("Admin login error:", error);
       toast({
         title: "Login Failed",
-        description: errorMessage,
+        description: "An error occurred during login. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -78,39 +82,39 @@ const Login = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="flex items-center justify-center py-12 px-4">
-        <Card className="w-full max-w-md medical-card">
+        <Card className="w-full max-w-md border-2 border-primary/20">
           <CardHeader className="space-y-1 text-center">
             <div className="flex items-center justify-center w-16 h-16 bg-primary rounded-full mx-auto mb-4">
-              <Heart className="h-8 w-8 text-primary-foreground" />
+              <Shield className="h-8 w-8 text-primary-foreground" />
             </div>
-            <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+            <CardTitle className="text-2xl font-bold">Admin Access</CardTitle>
             <CardDescription>
-              Sign in to your BloodConnect account
+              Enter your admin credentials to access the dashboard
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="username">Admin Username</Label>
                 <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={formData.email}
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="Enter admin username"
+                  value={formData.username}
                   onChange={handleInputChange}
                   required
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Admin Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder="Enter admin password"
                     value={formData.password}
                     onChange={handleInputChange}
                     required
@@ -131,21 +135,25 @@ const Login = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-sm">
-                <Link to="/forgot-password" className="text-primary hover:underline">
-                  Forgot password?
-                </Link>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <div className="flex items-center space-x-2 text-amber-800">
+                  <Lock className="h-4 w-4" />
+                  <span className="text-sm font-medium">Admin Access Only</span>
+                </div>
+                <p className="text-xs text-amber-700 mt-1">
+                  This area is restricted to authorized administrators only.
+                </p>
               </div>
 
-              <Button type="submit" className="w-full btn-hero" disabled={isLoading || !isFormValid}>
-                {isLoading ? "Signing in..." : "Sign In"}
+              <Button type="submit" className="w-full btn-hero" disabled={isLoading}>
+                {isLoading ? "Authenticating..." : "Access Admin Dashboard"}
               </Button>
             </form>
 
             <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">Don't have an account? </span>
-              <Link to="/signup" className="text-primary font-medium hover:underline">
-                Sign up
+              <span className="text-muted-foreground">Regular user? </span>
+              <Link to="/login" className="text-primary font-medium hover:underline">
+                User Login
               </Link>
             </div>
 
@@ -156,29 +164,22 @@ const Login = () => {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
+                    Demo Credentials
                   </span>
                 </div>
               </div>
               
-              <div className="mt-4 space-y-2">
-                <Link to="/otp-login">
-                  <Button variant="outline" className="w-full">
-                    Login with OTP
-                  </Button>
-                </Link>
-                <Link to="/admin-login">
-                  <Button variant="outline" className="w-full">
-                    Admin Login
-                  </Button>
-                </Link>
+              <div className="mt-2 p-2 bg-muted rounded text-xs">
+                <p><strong>Username:</strong> admin</p>
+                <p><strong>Password:</strong> admin123</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
+      <Footer />
     </div>
   );
 };
 
-export default Login;
+export default AdminLogin;

@@ -18,8 +18,6 @@ const Navbar = () => {
     { name: "Home", href: "/", icon: Heart },
     { name: "Find Blood", href: "/search", icon: Search },
     { name: "Hospitals", href: "/hospitals", icon: MapPin },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
   ];
 
   const userNavItems = [
@@ -45,7 +43,7 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex md:items-center md:space-x-6">
-          {navItems.map((item) => {
+          {isAuthenticated && navItems.map((item) => {
             const Icon = item.icon;
             return (
               <Link
@@ -155,27 +153,29 @@ const Navbar = () => {
               </Link>
 
               {/* Mobile Navigation Links */}
-              <div className="space-y-2">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      onClick={() => setIsOpen(false)}
-                      className={cn(
-                        "flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                        location.pathname === item.href
-                          ? "bg-accent text-accent-foreground"
-                          : "text-muted-foreground"
-                      )}
-                    >
-                      {Icon && <Icon className="h-4 w-4" />}
-                      <span>{item.name}</span>
-                    </Link>
-                  );
-                })}
-              </div>
+              {isAuthenticated && (
+                <div className="space-y-2">
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        onClick={() => setIsOpen(false)}
+                        className={cn(
+                          "flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
+                          location.pathname === item.href
+                            ? "bg-accent text-accent-foreground"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        {Icon && <Icon className="h-4 w-4" />}
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
 
               {isAuthenticated && user && (
                 <>

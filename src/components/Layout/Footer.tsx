@@ -7,14 +7,10 @@ const Footer = () => {
     { name: "Find Blood", href: "/search" },
     { name: "Donate Blood", href: "/signup" },
     { name: "Hospitals", href: "/hospitals" },
-    { name: "About Us", href: "/about" },
   ];
 
   const supportLinks = [
-    { name: "Help Center", href: "/help" },
     { name: "Feedback", href: "/feedback" },
-    { name: "Privacy Policy", href: "/privacy" },
-    { name: "Terms of Service", href: "/terms" },
   ];
 
   return (

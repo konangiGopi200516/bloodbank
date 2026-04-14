@@ -1,11 +1,39 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Users, MapPin, Clock, Shield, Award, Phone, Droplets } from "lucide-react";
 import Navbar from "@/components/Layout/Navbar";
 import Footer from "@/components/Layout/Footer";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Home = () => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  
+  const handleBecomeDonor = () => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      navigate('/login');
+    }
+  };
+  
+  const handleFindBlood = () => {
+    if (isAuthenticated) {
+      navigate('/search');
+    } else {
+      navigate('/login');
+    }
+  };
+  
+  const handleEmergencyRequest = () => {
+    if (isAuthenticated) {
+      navigate('/search');
+    } else {
+      navigate('/login');
+    }
+  };
+  
   const features = [
     {
       icon: Heart,
@@ -71,16 +99,12 @@ const Home = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/signup">
-                  <Button size="lg" className="btn-hero text-lg px-8 py-4 h-auto">
-                    Become a Donor
-                  </Button>
-                </Link>
-                <Link to="/search">
-                  <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-auto">
-                    Find Blood Now
-                  </Button>
-                </Link>
+                <Button size="lg" className="btn-hero text-lg px-8 py-4 h-auto" onClick={handleBecomeDonor}>
+                  {isAuthenticated ? "Go to Dashboard" : "Become a Donor"}
+                </Button>
+                <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-auto" onClick={handleFindBlood}>
+                  Find Blood Now
+                </Button>
               </div>
             </div>
             
@@ -93,11 +117,9 @@ const Home = () => {
                 <p className="text-muted-foreground">
                   Need blood urgently? Submit your request and get matched with donors instantly.
                 </p>
-                <Link to="/emergency">
-                  <Button className="w-full" size="lg">
-                    Emergency Request
-                  </Button>
-                </Link>
+                <Button className="w-full" size="lg" onClick={handleEmergencyRequest}>
+                  Emergency Request
+                </Button>
               </div>
             </div>
           </div>
@@ -175,7 +197,7 @@ const Home = () => {
                   Register as Donor
                 </Button>
               </Link>
-              <Link to="/contact">
+              <Link to="/feedback">
                 <Button size="lg" variant="outline" className="text-lg px-8 py-4 h-auto border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
                   Contact Us
                 </Button>
