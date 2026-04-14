@@ -6,7 +6,7 @@ import path from "path";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 5174,
+    port: 5176,
     proxy: {
       '/api': {
         target: 'http://localhost:9999',
